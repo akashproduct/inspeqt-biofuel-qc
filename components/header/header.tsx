@@ -31,7 +31,7 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <img
-              src="/inspeqt-biofuel-qc/Inspeqt_Biofuel.png"
+              src="./Inspeqt_Biofuel.png"
               alt="Inspeqt Biofuel Logo"
               width={180}
               height={40}
@@ -69,7 +69,7 @@ export function Header() {
           <SheetContent side="left" className="pr-0">
             <Link href="/" className="flex items-center space-x-2 mb-8">
               <img
-                src="/inspeqt-biofuel-qc/Inspeqt_Biofuel.png"
+                src="./Inspeqt_Biofuel.png"
                 alt="Inspeqt Biofuel Logo"
                 width={140}
                 height={32}
