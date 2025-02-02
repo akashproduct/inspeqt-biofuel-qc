@@ -4,6 +4,8 @@ const nextConfig = {
   basePath: '/inspeqt-biofuel-qc',
   images: {
     unoptimized: true,
+    loader: 'custom',
+    loaderFile: './image-loader.js',
   },
   assetPrefix: '/inspeqt-biofuel-qc/',
   transpilePackages: ['react-leaflet'],
