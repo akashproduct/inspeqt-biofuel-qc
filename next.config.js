@@ -5,6 +5,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  assetPrefix: '/inspeqt-biofuel-qc/',
   transpilePackages: ['react-leaflet'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false, path: false }
