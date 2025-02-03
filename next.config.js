@@ -6,11 +6,7 @@ const nextConfig = {
     return config
   },
   experimental: {
-    turbo: {
-      rules: {
-        // Your custom rules here
-      }
-    }
+    appDir: true
   }
 }
 

@@ -32,12 +32,12 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image
-              src="/Inspeqt_Biofuel.png"
-              alt="Inspeqt Biofuel Logo"
-              width={180}
+              src="/perfeqt_biofuel_logo.png"
+              alt="Perfeqt Biofuel Logo"
+              width={200}
               height={40}
               priority
-              className="dark:brightness-200"
+              className="h-10 w-auto object-contain"
             />
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -71,12 +71,12 @@ export function Header() {
           <SheetContent side="left" className="pr-0">
             <Link href="/" className="flex items-center space-x-2 mb-8">
               <Image
-                src="/Inspeqt_Biofuel.png"
-                alt="Inspeqt Biofuel Logo"
-                width={140}
-                height={32}
+                src="/perfeqt_biofuel_logo.png"
+                alt="Perfeqt Biofuel Logo"
+                width={180}
+                height={36}
                 priority
-                className="dark:brightness-200"
+                className="h-9 w-auto object-contain"
               />
             </Link>
             <nav className="flex flex-col gap-4">
@@ -114,7 +114,7 @@ export function Header() {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">AgNext Admin</p>
-                  <p className="text-xs text-muted-foreground">admin@inspeqt.in</p>
+                  <p className="text-xs text-muted-foreground">admin@perfeqt.in</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

@@ -112,7 +112,7 @@ export default function Home() {
       <div className="container py-8 px-4 mx-auto max-w-7xl">
         {/* Page Title */}
         <div className="flex flex-col gap-1 mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome to Inspeqt Biofuel</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to Perfeqt Biofuel</h1>
           <p className="text-muted-foreground">
             Your comprehensive quality control management system for biofuel testing.
           </p>

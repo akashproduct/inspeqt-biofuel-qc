@@ -1,118 +1,82 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon, Filter, Download, AlertTriangle, FileText, Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { FileText, Download, Search, AlertTriangle, CheckCircle, XCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-const mockReports = [
+const reports = [
   {
     id: "QT-2024-001",
-    date: "2024-02-15",
+    date: "2024-02-01",
     supplier: "Green Pellets Inc.",
-    truckId: "GPI-T-001",
-    parameters: {
-      gcv: 4250,
-      moisture: 8.2,
-      fineness: 3.5,
-      totalAsh: 6.8
-    },
-    status: "pass"
+    truckId: "BPT-2024-089",
+    gcv: 3850,
+    moisture: 8.2,
+    fineness: 4.5,
+    totalAsh: 6.8,
+    status: "pass",
+    priceAdjustment: "none",
+    qualityFlag: "optimal"
   },
   {
     id: "QT-2024-002",
-    date: "2024-02-15",
+    date: "2024-02-01",
     supplier: "Bio Energy Solutions",
-    truckId: "BES-T-045",
-    parameters: {
-      gcv: 2750,
-      moisture: 9.1,
-      fineness: 5.2,
-      totalAsh: 7.2
-    },
-    status: "fail"
+    truckId: "BPT-2024-090",
+    gcv: 3150,
+    moisture: 8.5,
+    fineness: 5.2,
+    totalAsh: 7.2,
+    status: "pass",
+    priceAdjustment: "fineness",
+    qualityFlag: "attention"
   },
   {
     id: "QT-2024-003",
-    date: "2024-02-14",
-    supplier: "Green Pellets Inc.",
-    truckId: "GPI-T-002",
-    parameters: {
-      gcv: 4150,
-      moisture: 8.5,
-      fineness: 3.8,
-      totalAsh: 6.5
-    },
-    status: "pass"
+    date: "2024-02-02",
+    supplier: "EcoPellet Corp",
+    truckId: "BPT-2024-091",
+    gcv: 2650,
+    moisture: 12.5,
+    fineness: 4.8,
+    totalAsh: 8.1,
+    status: "low",
+    priceAdjustment: "gcv-75",
+    qualityFlag: "warning"
   },
   {
     id: "QT-2024-004",
-    date: "2024-02-14",
-    supplier: "Bio Energy Solutions",
-    truckId: "BES-T-046",
-    parameters: {
-      gcv: 3950,
-      moisture: 8.8,
-      fineness: 4.2,
-      totalAsh: 6.9
-    },
-    status: "pass"
+    date: "2024-02-02",
+    supplier: "Green Pellets Inc.",
+    truckId: "BPT-2024-092",
+    gcv: 2250,
+    moisture: 13.8,
+    fineness: 5.5,
+    totalAsh: 8.5,
+    status: "low",
+    priceAdjustment: "gcv-50",
+    qualityFlag: "critical"
   },
   {
     id: "QT-2024-005",
-    date: "2024-02-13",
-    supplier: "Green Pellets Inc.",
-    truckId: "GPI-T-003",
-    parameters: {
-      gcv: 2650,
-      moisture: 9.5,
-      fineness: 5.8,
-      totalAsh: 7.5
-    },
-    status: "fail"
+    date: "2024-02-03",
+    supplier: "Bio Energy Solutions",
+    truckId: "BPT-2024-093",
+    gcv: 1950,
+    moisture: 15.2,
+    fineness: 6.2,
+    totalAsh: 9.0,
+    status: "reject",
+    priceAdjustment: "reject",
+    qualityFlag: "reject"
   }
 ]
 
-function calculatePrice(report: typeof mockReports[0]) {
-  const qualityFactor = report.parameters.gcv / 4000 // Normalize against base GCV of 4000
-  const moisturePenalty = report.parameters.moisture > 8.5 ? 0.95 : 1 // 5% penalty for high moisture
-  const ashPenalty = report.parameters.totalAsh > 4 ? 0.95 : 1 // 5% penalty for high ash content
-  
-  const pricePerTon = report.parameters.gcv / 1000 // Price per kg
-  return {
-    pricePerTon: Math.round(pricePerTon),
-    totalPrice: Math.round(pricePerTon * 1000) // Price per ton
-  }
-}
-
 export default function ReportsPage() {
-  const [date, setDate] = useState<Date>()
-  const [supplierFilter, setSupplierFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-
-  const filteredReports = mockReports.filter(report => {
-    const matchesSupplier = supplierFilter === "all" || report.supplier.includes(supplierFilter)
-    const matchesStatus = statusFilter === "all" || report.status.toLowerCase() === statusFilter.toLowerCase()
-    return matchesSupplier && matchesStatus
-  })
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-900/10 dark:to-background">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-900/10 dark:to-background">
       <div className="container py-8 px-4 mx-auto max-w-7xl">
         {/* Page Header */}
         <div className="flex flex-col gap-1 mb-8">
@@ -126,10 +90,10 @@ export default function ReportsPage() {
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search reports..."
-                className="pl-8 max-w-sm"
+                className="pl-10 max-w-sm"
               />
             </div>
           </div>
@@ -140,86 +104,118 @@ export default function ReportsPage() {
         </div>
 
         {/* Reports Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredReports.map((report) => {
-            const pricing = calculatePrice(report)
-            return (
-              <Card key={report.id} className="bg-white/50 backdrop-blur-sm border-purple-100 dark:border-purple-900/20">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-purple-600" />
-                    {report.id}
-                    {(report.parameters.gcv < 2800 || report.parameters.fineness > 5) && (
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
-                    )}
-                  </CardTitle>
-                  <Button variant="ghost" size="sm" className="text-purple-700 hover:text-purple-800 hover:bg-purple-100">
-                    View Details
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Date</p>
-                        <p className="font-medium">{report.date}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Truck ID</p>
-                        <p className="font-medium">{report.truckId}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-muted-foreground">Supplier</p>
-                        <p className="font-medium">{report.supplier}</p>
-                      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {reports.map((report) => (
+            <Card 
+              key={report.id}
+              className={cn(
+                "bg-white/50 backdrop-blur-sm border-purple-100 dark:border-purple-900/20 transition-all hover:shadow-lg",
+                report.qualityFlag === 'reject' ? 'border-l-4 border-l-red-500' :
+                report.qualityFlag === 'critical' ? 'border-l-4 border-l-orange-500' :
+                report.qualityFlag === 'warning' ? 'border-l-4 border-l-yellow-500' :
+                report.qualityFlag === 'attention' ? 'border-l-4 border-l-blue-500' :
+                'border-l-4 border-l-green-500'
+              )}
+            >
+              <CardHeader className="flex flex-row items-start justify-between pb-2">
+                <div>
+                  <CardTitle className="text-lg font-semibold">{report.id}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{report.date}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {report.qualityFlag === 'reject' && <XCircle className="h-5 w-5 text-red-500" />}
+                  {report.qualityFlag === 'critical' && <AlertTriangle className="h-5 w-5 text-orange-500" />}
+                  {report.qualityFlag === 'warning' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
+                  {report.qualityFlag === 'attention' && <AlertTriangle className="h-5 w-5 text-blue-500" />}
+                  {report.qualityFlag === 'optimal' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium">{report.supplier}</p>
+                    <p className="text-sm text-muted-foreground">Truck ID: {report.truckId}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      report.gcv < 2000 ? 'bg-red-50 text-red-700' :
+                      report.gcv < 2400 ? 'bg-orange-50 text-orange-700' :
+                      report.gcv < 2800 ? 'bg-yellow-50 text-yellow-700' :
+                      'bg-green-50 text-green-700'
+                    )}>
+                      <p className="text-xs font-medium">GCV</p>
+                      <p className="text-lg font-semibold">{report.gcv}</p>
+                      <p className="text-xs">kcal/kg</p>
                     </div>
-
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Quality Parameters</div>
-                      <div className="grid grid-cols-2 gap-2 p-2 bg-purple-50/50 rounded-lg text-sm">
-                        <div>
-                          <p className="text-muted-foreground">GCV</p>
-                          <p className={`font-medium ${report.parameters.gcv < 2800 ? 'text-red-600' : ''}`}>
-                            {report.parameters.gcv} kcal/kg
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Moisture</p>
-                          <p className="font-medium">{report.parameters.moisture}%</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Fineness</p>
-                          <p className={`font-medium ${report.parameters.fineness > 5 ? 'text-red-600' : ''}`}>
-                            {report.parameters.fineness}%
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Total Ash</p>
-                          <p className="font-medium">{report.parameters.totalAsh}%</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-purple-100">
-                      <div className="flex items-center">
-                        <span className={`inline-block h-2 w-2 rounded-full mr-2 ${
-                          report.status === 'pass' ? 'bg-green-500' : 'bg-red-500'
-                        }`} />
-                        <span className={`text-sm font-medium ${
-                          report.status === 'pass' ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {report.status === 'pass' ? 'Passed' : 'Failed'}
-                        </span>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
+                    
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      report.moisture > 14 ? 'bg-red-50 text-red-700' :
+                      report.moisture > 12 ? 'bg-orange-50 text-orange-700' :
+                      report.moisture > 10 ? 'bg-yellow-50 text-yellow-700' :
+                      'bg-green-50 text-green-700'
+                    )}>
+                      <p className="text-xs font-medium">Moisture</p>
+                      <p className="text-lg font-semibold">{report.moisture}%</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      report.fineness > 5 ? 'bg-yellow-50 text-yellow-700' :
+                      'bg-green-50 text-green-700'
+                    )}>
+                      <p className="text-xs font-medium">Fineness</p>
+                      <p className="text-lg font-semibold">{report.fineness}%</p>
+                    </div>
+                    
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      report.totalAsh > 8 ? 'bg-red-50 text-red-700' :
+                      report.totalAsh > 7 ? 'bg-yellow-50 text-yellow-700' :
+                      'bg-green-50 text-green-700'
+                    )}>
+                      <p className="text-xs font-medium">Total Ash</p>
+                      <p className="text-lg font-semibold">{report.totalAsh}%</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center pt-2">
+                    <span className={cn(
+                      "px-2 py-1 rounded-full text-xs font-medium",
+                      report.status === 'pass' ? 'bg-green-100 text-green-700' :
+                      report.status === 'low' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    )}>
+                      {report.status.toUpperCase()}
+                    </span>
+                    <span className={cn(
+                      "px-2 py-1 rounded-full text-xs font-medium",
+                      report.priceAdjustment === 'none' ? 'bg-green-100 text-green-700' :
+                      report.priceAdjustment === 'fineness' ? 'bg-blue-100 text-blue-700' :
+                      report.priceAdjustment === 'gcv-75' ? 'bg-yellow-100 text-yellow-700' :
+                      report.priceAdjustment === 'gcv-50' ? 'bg-orange-100 text-orange-700' :
+                      'bg-red-100 text-red-700'
+                    )}>
+                      {report.priceAdjustment === 'none' ? 'No Adjustment' :
+                       report.priceAdjustment === 'fineness' ? 'Fineness Adj.' :
+                       report.priceAdjustment === 'gcv-75' ? '75% Price' :
+                       report.priceAdjustment === 'gcv-50' ? '50% Price' :
+                       'Rejected'}
+                    </span>
+                  </div>
+                  
+                  <Button variant="ghost" size="sm" className="w-full">
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </div>

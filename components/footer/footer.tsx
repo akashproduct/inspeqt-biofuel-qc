@@ -2,17 +2,18 @@
 
 export function Footer() {
   return (
-    <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-center text-sm">
-        <div className="flex items-center gap-1 text-muted-foreground">
-          © 2024 Inspeqt Biofuel ·{" "}
-          <span className="flex items-center gap-1">
-            Powered by{" "}
-            <span className="text-purple-600 font-medium hover:text-purple-700 cursor-pointer">
-              AgNext
-            </span>
-          </span>
-        </div>
+    <footer className="border-t py-6 md:py-0">
+      <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
+        <p className="text-sm text-muted-foreground text-center md:text-left">
+          © 2024 Perfeqt Biofuel ·{" "}
+          <a href="#" className="underline underline-offset-4">
+            Terms
+          </a>{" "}
+          ·{" "}
+          <a href="#" className="underline underline-offset-4">
+            Privacy
+          </a>
+        </p>
       </div>
     </footer>
   )

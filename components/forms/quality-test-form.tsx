@@ -44,24 +44,6 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Validate critical parameters
-    if (formData.gcv < 2800) {
-      toast({
-        title: "Warning",
-        description: "GCV is below minimum threshold (2800)",
-        variant: "destructive",
-      })
-    }
-    
-    if (formData.fineness > 5) {
-      toast({
-        title: "Warning",
-        description: "Fineness is above maximum threshold (5%)",
-        variant: "destructive",
-      })
-    }
-
     try {
       // TODO: Implement form submission
       console.log(formData)
@@ -120,20 +102,22 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
           {/* Supplier Selection */}
           <div className="space-y-2">
             <Label htmlFor="supplier">Supplier</Label>
-            <Select onValueChange={(value) => setFormData({ ...formData, supplier: value })}>
+            <Select
+              onValueChange={(value) => setFormData({ ...formData, supplier: value })}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select supplier" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="green-pellets">Green Pellets Inc.</SelectItem>
-                <SelectItem value="bio-energy">Bio Energy Solutions</SelectItem>
+                <SelectItem value="supplier1">Green Pellets Inc.</SelectItem>
+                <SelectItem value="supplier2">Bio Energy Solutions</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Quality Parameters */}
+          {/* Test Results */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-purple-700">Quality Parameters</h3>
+            <h3 className="text-lg font-semibold text-purple-700">Test Results</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="gcv">GCV (kcal/kg)</Label>
@@ -144,11 +128,7 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                   value={formData.gcv}
                   onChange={(e) => setFormData({ ...formData, gcv: parseFloat(e.target.value) })}
                   required
-                  className={formData.gcv < 2800 ? "border-red-500" : ""}
                 />
-                {formData.gcv < 2800 && (
-                  <p className="text-sm text-red-500">GCV is below minimum threshold</p>
-                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="moisture">Moisture (%)</Label>
@@ -156,7 +136,7 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                   id="moisture"
                   type="number"
                   step="0.1"
-                  placeholder="Enter moisture content"
+                  placeholder="Enter moisture percentage"
                   value={formData.moisture}
                   onChange={(e) => setFormData({ ...formData, moisture: parseFloat(e.target.value) })}
                   required
@@ -168,15 +148,11 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                   id="fineness"
                   type="number"
                   step="0.1"
-                  placeholder="Enter fineness value"
+                  placeholder="Enter fineness percentage"
                   value={formData.fineness}
                   onChange={(e) => setFormData({ ...formData, fineness: parseFloat(e.target.value) })}
                   required
-                  className={formData.fineness > 5 ? "border-red-500" : ""}
                 />
-                {formData.fineness > 5 && (
-                  <p className="text-sm text-red-500">Fineness is above maximum threshold</p>
-                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="totalAsh">Total Ash (%)</Label>
@@ -184,7 +160,7 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                   id="totalAsh"
                   type="number"
                   step="0.1"
-                  placeholder="Enter total ash content"
+                  placeholder="Enter total ash percentage"
                   value={formData.totalAsh}
                   onChange={(e) => setFormData({ ...formData, totalAsh: parseFloat(e.target.value) })}
                   required
@@ -212,7 +188,7 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                     className="hidden"
                     onChange={handleFileChange}
                   />
-                  <p className="text-sm text-muted-foreground">Upload sample photos (optional)</p>
+                  <p className="text-sm text-muted-foreground">Upload one or more photos of the sample</p>
                 </div>
               </div>
             </div>
