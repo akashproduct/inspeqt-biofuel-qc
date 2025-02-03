@@ -10,6 +10,8 @@ const nextConfig = {
     config.resolve.fallback = { fs: false, path: false }
     return config
   },
+  trailingSlash: true,  // Add trailing slashes for GitHub Pages compatibility
+  assetPrefix: '/inspeqt-biofuel-qc/',  // Prefix for all assets
   experimental: {
     appDir: true
   }
