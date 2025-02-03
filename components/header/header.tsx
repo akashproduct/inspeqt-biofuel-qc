@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Building2, ClipboardList, LayoutDashboard, Menu, UserCircle, Settings, LogOut } from "lucide-react"
 
@@ -24,18 +25,18 @@ const navigation = [
 
 export function Header() {
   const pathname = usePathname()
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center px-4">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <img
-              src={`${basePath}/Inspeqt_Biofuel.png`}
+            <Image
+              src="/Inspeqt_Biofuel.png"
               alt="Inspeqt Biofuel Logo"
               width={180}
               height={40}
+              priority
               className="dark:brightness-200"
             />
           </Link>
@@ -69,11 +70,12 @@ export function Header() {
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
             <Link href="/" className="flex items-center space-x-2 mb-8">
-              <img
-                src={`${basePath}/Inspeqt_Biofuel.png`}
+              <Image
+                src="/Inspeqt_Biofuel.png"
                 alt="Inspeqt Biofuel Logo"
                 width={140}
                 height={32}
+                priority
                 className="dark:brightness-200"
               />
             </Link>

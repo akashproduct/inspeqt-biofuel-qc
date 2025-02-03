@@ -1,40 +1,35 @@
-import "@/styles/globals.css"
-import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Header } from "@/components/header/header"
-import { Footer } from "@/components/footer/footer"
-import { Toaster } from "@/components/ui/toaster"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Header } from "@/components/header/header";
+import { Footer } from "@/components/footer/footer";
+import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
-export const metadata = {
-  title: "Inspeqt Biofuel QC",
-  description: "Quality Control System for Biopellet Production",
-}
+export const metadata: Metadata = {
+  title: "BioPellet QC - Truck Quality Testing Centre",
+  description: "Quality control and testing management system for biopellet trucks",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
       <body className={`${inter.variable} min-h-screen bg-background font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            {children}
-            <Footer />
-          </div>
-          <Toaster />
-        </ThemeProvider>
+        <div className="relative flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+        <Toaster />
       </body>
     </html>
-  )
+  );
 }

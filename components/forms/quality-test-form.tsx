@@ -19,6 +19,7 @@ interface QualityTestFormData {
   supplier: string
   gcv: number
   moisture: number
+  fineness: number
   totalAsh: number
   photos: FileList | null
   date: string
@@ -34,6 +35,7 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
     supplier: "",
     gcv: 0,
     moisture: 0,
+    fineness: 0,
     totalAsh: 0,
     photos: null,
     date: new Date().toISOString().split('T')[0],
@@ -42,6 +44,24 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate critical parameters
+    if (formData.gcv < 2800) {
+      toast({
+        title: "Warning",
+        description: "GCV is below minimum threshold (2800)",
+        variant: "destructive",
+      })
+    }
+    
+    if (formData.fineness > 5) {
+      toast({
+        title: "Warning",
+        description: "Fineness is above maximum threshold (5%)",
+        variant: "destructive",
+      })
+    }
+
     try {
       // TODO: Implement form submission
       console.log(formData)
@@ -100,19 +120,13 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
           {/* Supplier Selection */}
           <div className="space-y-2">
             <Label htmlFor="supplier">Supplier</Label>
-            <Select
-              value={formData.supplier}
-              onValueChange={(value) => setFormData({ ...formData, supplier: value })}
-            >
+            <Select onValueChange={(value) => setFormData({ ...formData, supplier: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select supplier" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="punjab-biomass">Punjab Biomass Ltd</SelectItem>
-                <SelectItem value="haryana-biofuels">Haryana Biofuels</SelectItem>
-                <SelectItem value="delhi-green">Delhi Green Energy</SelectItem>
-                <SelectItem value="rajasthan-biomass">Rajasthan Biomass Corp</SelectItem>
-                <SelectItem value="ludhiana-pellets">Ludhiana Pellets Inc</SelectItem>
+                <SelectItem value="green-pellets">Green Pellets Inc.</SelectItem>
+                <SelectItem value="bio-energy">Bio Energy Solutions</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -120,17 +134,21 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
           {/* Quality Parameters */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-purple-700">Quality Parameters</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="gcv">GCV (kcal/kg)</Label>
                 <Input
                   id="gcv"
                   type="number"
-                  placeholder="Enter GCV"
-                  value={formData.gcv || ""}
+                  placeholder="Enter GCV value"
+                  value={formData.gcv}
                   onChange={(e) => setFormData({ ...formData, gcv: parseFloat(e.target.value) })}
                   required
+                  className={formData.gcv < 2800 ? "border-red-500" : ""}
                 />
+                {formData.gcv < 2800 && (
+                  <p className="text-sm text-red-500">GCV is below minimum threshold</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="moisture">Moisture (%)</Label>
@@ -138,11 +156,27 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                   id="moisture"
                   type="number"
                   step="0.1"
-                  placeholder="Enter moisture"
-                  value={formData.moisture || ""}
+                  placeholder="Enter moisture content"
+                  value={formData.moisture}
                   onChange={(e) => setFormData({ ...formData, moisture: parseFloat(e.target.value) })}
                   required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fineness">Fineness (%)</Label>
+                <Input
+                  id="fineness"
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter fineness value"
+                  value={formData.fineness}
+                  onChange={(e) => setFormData({ ...formData, fineness: parseFloat(e.target.value) })}
+                  required
+                  className={formData.fineness > 5 ? "border-red-500" : ""}
+                />
+                {formData.fineness > 5 && (
+                  <p className="text-sm text-red-500">Fineness is above maximum threshold</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="totalAsh">Total Ash (%)</Label>
@@ -150,8 +184,8 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
                   id="totalAsh"
                   type="number"
                   step="0.1"
-                  placeholder="Enter total ash"
-                  value={formData.totalAsh || ""}
+                  placeholder="Enter total ash content"
+                  value={formData.totalAsh}
                   onChange={(e) => setFormData({ ...formData, totalAsh: parseFloat(e.target.value) })}
                   required
                 />
@@ -159,35 +193,27 @@ export function QualityTestForm({ onSuccess }: QualityTestFormProps) {
             </div>
           </div>
 
-          {/* Photo Evidence */}
+          {/* Photo Upload */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-purple-700">Photo Evidence</h3>
-            <div className="border-2 border-dashed border-purple-200 rounded-lg p-6">
-              <div className="flex flex-col items-center space-y-4">
-                <Camera className="h-12 w-12 text-purple-400" />
-                <div className="text-center">
-                  <Label
-                    htmlFor="photos"
-                    className="text-sm text-purple-600 hover:text-purple-700 cursor-pointer"
-                  >
+            <h3 className="text-lg font-semibold text-purple-700">Sample Photos</h3>
+            <div className="grid place-items-center border-2 border-dashed rounded-lg p-4">
+              <div className="text-center space-y-2">
+                <Camera className="mx-auto h-8 w-8 text-muted-foreground" />
+                <div className="space-y-1">
+                  <Button variant="outline" onClick={() => document.getElementById('photo-upload')?.click()}>
+                    <Upload className="mr-2 h-4 w-4" />
                     Upload Photos
-                  </Label>
-                  <p className="text-sm text-gray-500">Upload up to 5 photos</p>
+                  </Button>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <p className="text-sm text-muted-foreground">Upload sample photos (optional)</p>
                 </div>
-                <Input
-                  id="photos"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleFileChange}
-                  required
-                />
-                {formData.photos && (
-                  <div className="text-sm text-purple-600">
-                    {formData.photos.length} file(s) selected
-                  </div>
-                )}
               </div>
             </div>
           </div>

@@ -18,53 +18,85 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, Filter, Download } from "lucide-react"
+import { Calendar as CalendarIcon, Filter, Download, AlertTriangle, FileText, Search } from "lucide-react"
 
-const reports = [
+const mockReports = [
   {
-    id: 1,
-    date: "2024-02-02",
+    id: "QT-2024-001",
+    date: "2024-02-15",
     supplier: "Green Pellets Inc.",
-    truckId: "BPT-2024-089",
-    metrics: {
+    truckId: "GPI-T-001",
+    parameters: {
       gcv: 4250,
       moisture: 8.2,
-      ash: 3.5,
-      volatileMatter: 75.3,
-      fixedCarbon: 13.0
+      fineness: 3.5,
+      totalAsh: 6.8
     },
-    status: "Approved",
-    basePrice: 5500, // Price per ton
-    quantity: 25 // tons
+    status: "pass"
   },
   {
-    id: 2,
-    date: "2024-02-01",
+    id: "QT-2024-002",
+    date: "2024-02-15",
     supplier: "Bio Energy Solutions",
-    truckId: "BPT-2024-088",
-    metrics: {
-      gcv: 4200,
-      moisture: 8.4,
-      ash: 3.7,
-      volatileMatter: 74.8,
-      fixedCarbon: 13.1
+    truckId: "BES-T-045",
+    parameters: {
+      gcv: 2750,
+      moisture: 9.1,
+      fineness: 5.2,
+      totalAsh: 7.2
     },
-    status: "Pending",
-    basePrice: 5450,
-    quantity: 28
+    status: "fail"
   },
-  // Add more reports...
+  {
+    id: "QT-2024-003",
+    date: "2024-02-14",
+    supplier: "Green Pellets Inc.",
+    truckId: "GPI-T-002",
+    parameters: {
+      gcv: 4150,
+      moisture: 8.5,
+      fineness: 3.8,
+      totalAsh: 6.5
+    },
+    status: "pass"
+  },
+  {
+    id: "QT-2024-004",
+    date: "2024-02-14",
+    supplier: "Bio Energy Solutions",
+    truckId: "BES-T-046",
+    parameters: {
+      gcv: 3950,
+      moisture: 8.8,
+      fineness: 4.2,
+      totalAsh: 6.9
+    },
+    status: "pass"
+  },
+  {
+    id: "QT-2024-005",
+    date: "2024-02-13",
+    supplier: "Green Pellets Inc.",
+    truckId: "GPI-T-003",
+    parameters: {
+      gcv: 2650,
+      moisture: 9.5,
+      fineness: 5.8,
+      totalAsh: 7.5
+    },
+    status: "fail"
+  }
 ]
 
-function calculatePrice(report: typeof reports[0]) {
-  const qualityFactor = report.metrics.gcv / 4000 // Normalize against base GCV of 4000
-  const moisturePenalty = report.metrics.moisture > 8.5 ? 0.95 : 1 // 5% penalty for high moisture
-  const ashPenalty = report.metrics.ash > 4 ? 0.95 : 1 // 5% penalty for high ash content
+function calculatePrice(report: typeof mockReports[0]) {
+  const qualityFactor = report.parameters.gcv / 4000 // Normalize against base GCV of 4000
+  const moisturePenalty = report.parameters.moisture > 8.5 ? 0.95 : 1 // 5% penalty for high moisture
+  const ashPenalty = report.parameters.totalAsh > 4 ? 0.95 : 1 // 5% penalty for high ash content
   
-  const pricePerTon = report.basePrice * qualityFactor * moisturePenalty * ashPenalty
+  const pricePerTon = report.parameters.gcv / 1000 // Price per kg
   return {
     pricePerTon: Math.round(pricePerTon),
-    totalPrice: Math.round(pricePerTon * report.quantity)
+    totalPrice: Math.round(pricePerTon * 1000) // Price per ton
   }
 }
 
@@ -73,7 +105,7 @@ export default function ReportsPage() {
   const [supplierFilter, setSupplierFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
 
-  const filteredReports = reports.filter(report => {
+  const filteredReports = mockReports.filter(report => {
     const matchesSupplier = supplierFilter === "all" || report.supplier.includes(supplierFilter)
     const matchesStatus = statusFilter === "all" || report.status.toLowerCase() === statusFilter.toLowerCase()
     return matchesSupplier && matchesStatus
@@ -86,139 +118,102 @@ export default function ReportsPage() {
         <div className="flex flex-col gap-1 mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Quality Reports</h1>
           <p className="text-muted-foreground">
-            View and analyze quality test reports for all deliveries.
+            View and manage quality test reports for all deliveries.
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-[200px] pl-3 text-left font-normal">
-                {date ? (
-                  format(date, "PPP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                initialFocus
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search reports..."
+                className="pl-8 max-w-sm"
               />
-            </PopoverContent>
-          </Popover>
-
-          <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by supplier" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Suppliers</SelectItem>
-              <SelectItem value="Green Pellets Inc.">Green Pellets Inc.</SelectItem>
-              <SelectItem value="Bio Energy Solutions">Bio Energy Solutions</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="flex-1" />
-
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
+            </div>
+          </div>
+          <Button className="bg-purple-600 hover:bg-purple-700">
+            <Download className="mr-2 h-4 w-4" />
             Export Reports
           </Button>
         </div>
 
         {/* Reports Grid */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredReports.map((report) => {
             const pricing = calculatePrice(report)
             return (
-              <Card key={report.id} className="bg-white/50 backdrop-blur-sm border-green-100 dark:border-green-900/20">
+              <Card key={report.id} className="bg-white/50 backdrop-blur-sm border-purple-100 dark:border-purple-900/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-xl">Report #{report.id}</CardTitle>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-muted-foreground">{report.date}</span>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        report.status === "Approved" 
-                          ? "bg-green-100 text-green-700" 
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}>
-                        {report.status}
-                      </span>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" className="text-green-700 hover:text-green-800 hover:bg-green-100">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-purple-600" />
+                    {report.id}
+                    {(report.parameters.gcv < 2800 || report.parameters.fineness > 5) && (
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                    )}
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" className="text-purple-700 hover:text-purple-800 hover:bg-purple-100">
                     View Details
                   </Button>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {/* Supplier Info */}
-                    <div className="flex justify-between items-center">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
+                        <p className="text-muted-foreground">Date</p>
+                        <p className="font-medium">{report.date}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Truck ID</p>
+                        <p className="font-medium">{report.truckId}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-muted-foreground">Supplier</p>
                         <p className="font-medium">{report.supplier}</p>
-                        <p className="text-sm text-muted-foreground">Truck ID: {report.truckId}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Quantity</p>
-                        <p className="font-medium">{report.quantity} tons</p>
                       </div>
                     </div>
 
-                    {/* Quality Metrics */}
-                    <div className="grid grid-cols-5 gap-4 p-4 bg-green-50/50 rounded-lg">
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">GCV</p>
-                        <p className="font-semibold">{report.metrics.gcv}</p>
-                      </div>
-                      <div className="text-center border-l border-green-100">
-                        <p className="text-sm text-muted-foreground">Moisture</p>
-                        <p className="font-semibold">{report.metrics.moisture}%</p>
-                      </div>
-                      <div className="text-center border-l border-green-100">
-                        <p className="text-sm text-muted-foreground">Ash</p>
-                        <p className="font-semibold">{report.metrics.ash}%</p>
-                      </div>
-                      <div className="text-center border-l border-green-100">
-                        <p className="text-sm text-muted-foreground">VM</p>
-                        <p className="font-semibold">{report.metrics.volatileMatter}%</p>
-                      </div>
-                      <div className="text-center border-l border-green-100">
-                        <p className="text-sm text-muted-foreground">FC</p>
-                        <p className="font-semibold">{report.metrics.fixedCarbon}%</p>
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium">Quality Parameters</div>
+                      <div className="grid grid-cols-2 gap-2 p-2 bg-purple-50/50 rounded-lg text-sm">
+                        <div>
+                          <p className="text-muted-foreground">GCV</p>
+                          <p className={`font-medium ${report.parameters.gcv < 2800 ? 'text-red-600' : ''}`}>
+                            {report.parameters.gcv} kcal/kg
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Moisture</p>
+                          <p className="font-medium">{report.parameters.moisture}%</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Fineness</p>
+                          <p className={`font-medium ${report.parameters.fineness > 5 ? 'text-red-600' : ''}`}>
+                            {report.parameters.fineness}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Total Ash</p>
+                          <p className="font-medium">{report.parameters.totalAsh}%</p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Price Calculation */}
-                    <div className="p-4 bg-green-100/50 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-sm font-medium">Base Price</p>
-                        <p className="font-semibold">₹{report.basePrice}/ton</p>
+                    <div className="flex items-center justify-between pt-2 border-t border-purple-100">
+                      <div className="flex items-center">
+                        <span className={`inline-block h-2 w-2 rounded-full mr-2 ${
+                          report.status === 'pass' ? 'bg-green-500' : 'bg-red-500'
+                        }`} />
+                        <span className={`text-sm font-medium ${
+                          report.status === 'pass' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {report.status === 'pass' ? 'Passed' : 'Failed'}
+                        </span>
                       </div>
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-sm font-medium">Quality Adjusted Price</p>
-                        <p className="font-semibold">₹{pricing.pricePerTon}/ton</p>
-                      </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-green-200">
-                        <p className="text-sm font-medium">Total Amount</p>
-                        <p className="text-lg font-bold text-green-700">₹{pricing.totalPrice}</p>
-                      </div>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
