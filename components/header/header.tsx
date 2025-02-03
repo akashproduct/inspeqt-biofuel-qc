@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Suppliers", href: "/suppliers", icon: Building2 },
@@ -32,7 +34,7 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image
-              src="/perfeqt_biofuel_logo.png"
+              src={`${basePath}/perfeqt_biofuel_logo.png`}
               alt="Perfeqt Biofuel Logo"
               width={200}
               height={40}
@@ -71,7 +73,7 @@ export function Header() {
           <SheetContent side="left" className="pr-0">
             <Link href="/" className="flex items-center space-x-2 mb-8">
               <Image
-                src="/perfeqt_biofuel_logo.png"
+                src={`${basePath}/perfeqt_biofuel_logo.png`}
                 alt="Perfeqt Biofuel Logo"
                 width={180}
                 height={36}

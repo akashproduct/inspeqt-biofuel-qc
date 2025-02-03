@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { SupplierForm } from "@/components/forms/supplier-form"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -11,55 +10,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Star, TrendingUp, MapPin, Phone, Mail } from "lucide-react"
+import { MapPin, Mail, Phone, Search, Plus } from "lucide-react"
 
-interface Supplier {
-  id: string
-  name: string
-  type: string
-  rating: number
-  deliveries: number
-  city: string
-  state: string
-  phone: string
-  email: string
-  metrics: {
-    avgGCV: number
-    avgMoisture: number
-    qualityScore: number
-  }
-}
-
-export default function SuppliersPage() {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [showForm, setShowForm] = useState(false)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchSuppliers()
-  }, [])
-
-  const fetchSuppliers = async () => {
-    try {
-      const response = await fetch("/api/suppliers")
-      const data = await response.json()
-      setSuppliers(data)
-    } catch (error) {
-      console.error("Error fetching suppliers:", error)
-    } finally {
-      setLoading(false)
+const suppliers = [
+  {
+    id: "SUP-001",
+    name: "Green Pellets Inc.",
+    type: "Premium",
+    city: "Mumbai",
+    state: "Maharashtra",
+    phone: "+91 98765 43210",
+    email: "contact@greenpellets.com",
+    metrics: {
+      avgGCV: "4,250 kcal/kg",
+      avgMoisture: "8.2%",
+      qualityScore: "98"
+    }
+  },
+  {
+    id: "SUP-002",
+    name: "Bio Energy Solutions",
+    type: "Premium",
+    city: "Delhi",
+    state: "Delhi",
+    phone: "+91 98765 43211",
+    email: "info@bioenergy.com",
+    metrics: {
+      avgGCV: "4,150 kcal/kg",
+      avgMoisture: "8.5%",
+      qualityScore: "95"
+    }
+  },
+  {
+    id: "SUP-003",
+    name: "EcoPellet Corp",
+    type: "Standard",
+    city: "Bangalore",
+    state: "Karnataka",
+    phone: "+91 98765 43212",
+    email: "support@ecopellet.com",
+    metrics: {
+      avgGCV: "3,950 kcal/kg",
+      avgMoisture: "8.8%",
+      qualityScore: "92"
     }
   }
+]
 
-  const filteredSuppliers = suppliers.filter(supplier => {
-    const matchesSearch = supplier.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = typeFilter === "all" || supplier.type.toLowerCase() === typeFilter.toLowerCase()
-    return matchesSearch && matchesType
-  })
-
+export default function SuppliersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-900/10 dark:to-background">
       <div className="container py-8 px-4 mx-auto max-w-7xl">
@@ -71,134 +69,88 @@ export default function SuppliersPage() {
           </p>
         </div>
 
-        {/* Filters */}
+        {/* Search and Filter */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="flex-1">
-            <Input
-              placeholder="Search suppliers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-sm"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search suppliers..."
+                className="pl-10 max-w-sm"
+              />
+            </div>
           </div>
-          <Select
-            value={typeFilter}
-            onValueChange={setTypeFilter}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="premium">Premium</SelectItem>
-              <SelectItem value="standard">Standard</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            {showForm ? "View Suppliers" : "Add New Supplier"}
-          </Button>
+          <div className="flex gap-4">
+            <Select defaultValue="all">
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="standard">Standard</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button className="bg-purple-600 hover:bg-purple-700">
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Supplier
+            </Button>
+          </div>
         </div>
 
-        {showForm ? (
-          <SupplierForm onSuccess={() => {
-            setShowForm(false)
-            fetchSuppliers()
-          }} />
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {loading ? (
-              <div className="col-span-full text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700 mx-auto"></div>
-                <p className="mt-4 text-muted-foreground">Loading suppliers...</p>
-              </div>
-            ) : filteredSuppliers.length > 0 ? (
-              filteredSuppliers.map((supplier) => (
-                <Card key={supplier.id} className="bg-white/50 backdrop-blur-sm border-purple-100 dark:border-purple-900/20">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-xl">{supplier.name}</CardTitle>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            supplier.type === "premium" 
-                              ? "bg-purple-100 text-purple-700" 
-                              : "bg-blue-100 text-blue-700"
-                          }`}>
-                            {supplier.type.charAt(0).toUpperCase() + supplier.type.slice(1)}
-                          </span>
-                          <div className="flex items-center text-yellow-500">
-                            <Star className="h-4 w-4 fill-current" />
-                            <span className="ml-1 text-sm">{supplier.rating.toFixed(1)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" className="text-purple-700 hover:text-purple-800 hover:bg-purple-100">
-                        View Details
-                      </Button>
+        {/* Suppliers Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {suppliers.map((supplier) => (
+            <Card key={supplier.id} className="bg-white/50 backdrop-blur-sm border-purple-100 dark:border-purple-900/20">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle className="text-lg font-semibold">{supplier.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{supplier.id}</p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  supplier.type === 'Premium' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
+                }`}>
+                  {supplier.type}
+                </span>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Metrics */}
+                  <div className="grid grid-cols-3 gap-4 p-4 bg-purple-50/50 rounded-lg">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Avg. GCV</p>
+                      <p className="font-semibold">{supplier.metrics.avgGCV}</p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Metrics */}
-                      <div className="grid grid-cols-3 gap-4 p-4 bg-purple-50/50 rounded-lg">
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Avg. GCV</p>
-                          <p className="font-semibold">{supplier.metrics.avgGCV}</p>
-                        </div>
-                        <div className="text-center border-x border-purple-100">
-                          <p className="text-sm text-muted-foreground">Moisture</p>
-                          <p className="font-semibold">{supplier.metrics.avgMoisture}%</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Quality</p>
-                          <p className="font-semibold">{supplier.metrics.qualityScore}%</p>
-                        </div>
-                      </div>
-
-                      {/* Contact Info */}
-                      <div className="space-y-2">
-                        <div className="flex items-center text-sm">
-                          <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span>{`${supplier.city}, ${supplier.state}`}</span>
-                        </div>
-                        <div className="flex items-center text-sm">
-                          <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span>{supplier.phone}</span>
-                        </div>
-                        <div className="flex items-center text-sm">
-                          <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span>{supplier.email}</span>
-                        </div>
-                      </div>
-
-                      {/* Deliveries */}
-                      <div className="flex items-center justify-between pt-4 border-t border-purple-100">
-                        <div className="flex items-center">
-                          <TrendingUp className="h-4 w-4 mr-2 text-purple-600" />
-                          <span className="text-sm font-medium">Total Deliveries</span>
-                        </div>
-                        <span className="text-sm font-semibold">{supplier.deliveries}</span>
-                      </div>
+                    <div className="text-center border-x border-purple-100">
+                      <p className="text-sm text-muted-foreground">Moisture</p>
+                      <p className="font-semibold">{supplier.metrics.avgMoisture}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <Building2 className="h-12 w-12 mx-auto text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-semibold">No suppliers found</h3>
-                <p className="text-muted-foreground">
-                  {searchQuery || typeFilter !== "all"
-                    ? "Try adjusting your search or filters"
-                    : "Click 'Add New Supplier' to get started"}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Quality</p>
+                      <p className="font-semibold">{supplier.metrics.qualityScore}%</p>
+                    </div>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm">
+                      <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <span>{`${supplier.city}, ${supplier.state}`}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <span>{supplier.phone}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <span>{supplier.email}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   )
