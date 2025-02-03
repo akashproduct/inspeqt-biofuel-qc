@@ -6,6 +6,12 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f3e8ff, #ffffff);
+}
+
+.dark body {
+  background: linear-gradient(to bottom, rgba(147, 51, 234, 0.1), rgba(0, 0, 0, 0));
 }
 
 @layer base {
@@ -80,15 +86,19 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
 }
 
 /* Custom styles for quality report cards */
 .quality-card {
-  @apply transition-all duration-200 ease-in-out hover:shadow-lg;
-  background: rgba(255, 255, 255, 0.5);
+  @apply transition-all duration-200 ease-in-out hover:shadow-lg rounded-xl border;
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
+}
+
+.dark .quality-card {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .quality-card.optimal {
@@ -109,4 +119,15 @@ body {
 
 .quality-card.reject {
   @apply border-l-4 border-l-red-500;
+}
+
+/* Custom styles for metric cards */
+.metric-card {
+  @apply rounded-lg p-3;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+}
+
+.dark .metric-card {
+  background: rgba(255, 255, 255, 0.05);
 }

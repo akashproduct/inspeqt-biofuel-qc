@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',  // Enable static exports
-  basePath: '/inspeqt-biofuel-qc', // Replace with your repository name
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   images: {
     unoptimized: true,
+    domains: ['localhost'],
   },
   transpilePackages: ['react-leaflet'],
   webpack: (config) => {
@@ -11,7 +12,7 @@ const nextConfig = {
     return config
   },
   trailingSlash: true,  // Add trailing slashes for GitHub Pages compatibility
-  assetPrefix: '/inspeqt-biofuel-qc/',  // Prefix for all assets
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
   experimental: {
     appDir: true
   }
